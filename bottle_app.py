@@ -2,7 +2,9 @@ __author__ = 'Karl Tiirik'
 #!/usr/bin/env python3.4
 # App code for pythonanywhere.com
 import json
+import configparser
 import urllib.request
+import os
 
 from bottle import default_app, route, request, template
 
@@ -17,13 +19,22 @@ def display_weather():
 
 
 def get_city(ip):
-    api_key = '2dc467de311bfb6ce49234d80bd0b237e02784e4b703365aed3a3cc8e2d31075'
+    api_key = get_api_key('config.ini')
     url = 'http://api.ipinfodb.com/v3/ip-city/?key={0}&ip={1}&format=json'.format(api_key, ip)
     urlobj = urllib.request.urlopen(url)
     data = urlobj.read().decode('utf-8')
     datadict = json.loads(data)
     city = datadict['cityName'].title()
     return city
+
+
+def get_api_key(filename):
+    my_dir = os.path.dirname(__file__)
+    file_path = os.path.join(my_dir, filename)
+    config = configparser.ConfigParser()
+    config.read(file_path)
+    api_key = config['ipinfodb']['ApiKey']
+    return api_key
 
 
 def get_weather(city):
